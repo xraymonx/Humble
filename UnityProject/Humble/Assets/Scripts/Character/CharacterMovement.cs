@@ -10,13 +10,17 @@ public class CharacterMovement : MonoBehaviour
 
     private Vector3 moveDirection = Vector3.zero;
     private CharacterController controller;
+    [SerializeField]private GameObject humbleModel;
 
+    private Animator animator; 
+    private Rigidbody thisRigid;
     void Start()
     {
+        animator = GetComponentInChildren<Animator>();
         controller = GetComponent<CharacterController>();
-
+        thisRigid = GetComponent<Rigidbody>();
         // let the gameObject fall down
-        gameObject.transform.position = new Vector3(0, 5, 0);
+        //gameObject.transform.position = new Vector3(0, 5, 0);
     }
 
     void Update()
@@ -27,7 +31,9 @@ public class CharacterMovement : MonoBehaviour
             // move direction directly from axes
 
             moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
+            
             moveDirection = transform.TransformDirection(moveDirection);
+
             moveDirection = moveDirection * speed;
 
             if (Input.GetButton("Jump"))
@@ -39,6 +45,14 @@ public class CharacterMovement : MonoBehaviour
         // Apply gravity
         moveDirection.y = moveDirection.y - (gravity * Time.deltaTime);
 
+        if((Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)){
+            print("moving");
+            animator.SetBool("isMoving", true);
+        }
+        else if(!controller.isGrounded) animator.SetBool("isMoving", false);
+            
+            
+        if(Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)   humbleModel.transform.rotation = Quaternion.LookRotation(new Vector3(moveDirection.x, 0, moveDirection.z));
         // Move the controller
         controller.Move(moveDirection * Time.deltaTime);
     }
